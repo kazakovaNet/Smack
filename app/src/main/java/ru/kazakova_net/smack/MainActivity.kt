@@ -1,5 +1,6 @@
 package ru.kazakova_net.smack
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
@@ -31,7 +32,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun loginBtnOnClicked(view: View) {
-
+        val loginIntent = Intent(this, LoginActivity::class.java)
+        startActivity(loginIntent)
     }
 
     fun onChannelBtnClicked(view: View) {
