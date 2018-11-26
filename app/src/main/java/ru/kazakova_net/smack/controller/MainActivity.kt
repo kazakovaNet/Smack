@@ -1,4 +1,4 @@
-package ru.kazakova_net.smack
+package ru.kazakova_net.smack.controller
 
 import android.content.Intent
 import android.os.Bundle
@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.View
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
+import ru.kazakova_net.smack.R
 
 class MainActivity : AppCompatActivity() {
 
@@ -17,7 +18,9 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
 
         val toggle = ActionBarDrawerToggle(
-                this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
+                this, drawer_layout, toolbar,
+            R.string.navigation_drawer_open,
+            R.string.navigation_drawer_close
         )
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()

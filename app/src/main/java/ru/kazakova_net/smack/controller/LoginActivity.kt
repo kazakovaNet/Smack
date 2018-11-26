@@ -1,9 +1,10 @@
-package ru.kazakova_net.smack
+package ru.kazakova_net.smack.controller
 
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
+import ru.kazakova_net.smack.R
 
 class LoginActivity : AppCompatActivity() {
 

@@ -1,10 +1,12 @@
-package ru.kazakova_net.smack
+package ru.kazakova_net.smack.controller
 
 import android.graphics.Color
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import kotlinx.android.synthetic.main.activity_create_user.*
+import ru.kazakova_net.smack.R
+import ru.kazakova_net.smack.services.AuthService
 import java.util.*
 
 class CreateUserActivity : AppCompatActivity() {
@@ -47,6 +49,10 @@ class CreateUserActivity : AppCompatActivity() {
     }
 
     fun createUserClicked(view: View) {
+        AuthService.registerUser(this, "k@k.ru", "123456") { complete ->
+            if (complete) {
 
+            }
+        }
     }
 }
