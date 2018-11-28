@@ -72,7 +72,7 @@ class MainActivity : AppCompatActivity() {
             // log out
             UserDataService.logout()
 
-            userNameNavHeader.text = "Login"
+            userNameNavHeader.text = ""
             userEmailNavHeader.text = ""
             userImageNavHeader.setImageResource(R.drawable.profiledefault)
             userImageNavHeader.setBackgroundColor(Color.TRANSPARENT)
