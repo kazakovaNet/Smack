@@ -1,16 +1,43 @@
 package ru.kazakova_net.smack.controller
 
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.graphics.Color
 import android.os.Bundle
+import android.support.v4.content.LocalBroadcastManager
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
+import kotlinx.android.synthetic.main.nav_header_main.*
 import ru.kazakova_net.smack.R
+import ru.kazakova_net.smack.services.AuthService
+import ru.kazakova_net.smack.services.UserDataService
+import ru.kazakova_net.smack.utilities.BROADCAST_USER_DATA_CHANGED
 
 class MainActivity : AppCompatActivity() {
+
+    private val userDataChangeReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (AuthService.isLoggedIn) {
+                userNameNavHeader.text = UserDataService.name
+                userEmailNavHeader.text = UserDataService.email
+                val resourceId = resources.getIdentifier(
+                    UserDataService.avatarName, "drawable",
+                    packageName
+                )
+                userImageNavHeader.setImageResource(resourceId)
+                userImageNavHeader.setBackgroundColor(UserDataService.returnAvatarColor(UserDataService.avatarColor))
+                loginBtnNavHeader.text = "Logout"
+            } else {
+
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -18,12 +45,18 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
 
         val toggle = ActionBarDrawerToggle(
-                this, drawer_layout, toolbar,
+            this, drawer_layout, toolbar,
             R.string.navigation_drawer_open,
             R.string.navigation_drawer_close
         )
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+            userDataChangeReceiver, IntentFilter(
+                BROADCAST_USER_DATA_CHANGED
+            )
+        )
     }
 
     override fun onBackPressed() {
@@ -34,9 +67,21 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun loginBtnOnClicked(view: View) {
-        val loginIntent = Intent(this, LoginActivity::class.java)
-        startActivity(loginIntent)
+    fun loginBtnOnClicked(view: View) = when {
+        AuthService.isLoggedIn -> {
+            // log out
+            UserDataService.logout()
+
+            userNameNavHeader.text = "Login"
+            userEmailNavHeader.text = ""
+            userImageNavHeader.setImageResource(R.drawable.profiledefault)
+            userImageNavHeader.setBackgroundColor(Color.TRANSPARENT)
+            loginBtnNavHeader.text = "Login"
+        }
+        else -> {
+            val loginIntent = Intent(this, LoginActivity::class.java)
+            startActivity(loginIntent)
+        }
     }
 
     fun onChannelBtnClicked(view: View) {
