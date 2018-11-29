@@ -18,7 +18,7 @@
             android:inputType="textPersonName"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" android:text="1@1.ru"/>
 
     <EditText
             android:id="@+id/loginPasswordTxt"
@@ -32,7 +32,7 @@
             android:inputType="textPassword"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/loginEmailTxt"/>
+            app:layout_constraintTop_toBottomOf="@+id/loginEmailTxt" android:text="123456"/>
 
     <Button
             android:id="@+id/loginLoginBtn"

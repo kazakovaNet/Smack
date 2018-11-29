@@ -13,6 +13,7 @@ import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.ArrayAdapter
 import android.widget.EditText
 import io.socket.client.IO
 import io.socket.emitter.Emitter
@@ -30,6 +31,7 @@ import ru.kazakova_net.smack.utilities.SOCKET_URL
 class MainActivity : AppCompatActivity() {
 
     private val socket = IO.socket(SOCKET_URL)
+    lateinit var channelAdapter: ArrayAdapter<Channel>
 
     private val onNewChannel = Emitter.Listener { args ->
         runOnUiThread {
@@ -40,26 +42,30 @@ class MainActivity : AppCompatActivity() {
             val newChannel = Channel(channelName, channelDesc, channelId)
             MessageService.channels.add(newChannel)
 
-            println(newChannel.name)
-            println(newChannel.description)
-            println(newChannel.id)
+            channelAdapter.notifyDataSetChanged()
         }
     }
 
     private val userDataChangeReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            if (AuthService.isLoggedIn) {
-                userNameNavHeader.text = UserDataService.name
-                userEmailNavHeader.text = UserDataService.email
-                val resourceId = resources.getIdentifier(
-                    UserDataService.avatarName, "drawable",
-                    packageName
-                )
-                userImageNavHeader.setImageResource(resourceId)
-                userImageNavHeader.setBackgroundColor(UserDataService.returnAvatarColor(UserDataService.avatarColor))
-                loginBtnNavHeader.text = "Logout"
-            } else {
+        override fun onReceive(context: Context, intent: Intent?) {
+            if (!AuthService.isLoggedIn) {
+                return
+            }
 
+            userNameNavHeader.text = UserDataService.name
+            userEmailNavHeader.text = UserDataService.email
+            val resourceId = resources.getIdentifier(
+                UserDataService.avatarName, "drawable",
+                packageName
+            )
+            userImageNavHeader.setImageResource(resourceId)
+            userImageNavHeader.setBackgroundColor(UserDataService.returnAvatarColor(UserDataService.avatarColor))
+            loginBtnNavHeader.text = "Logout"
+
+            MessageService.getChannels(context){ getChannelsSuccess->
+                if (getChannelsSuccess){
+                    channelAdapter.notifyDataSetChanged()
+                }
             }
         }
     }
@@ -80,6 +86,8 @@ class MainActivity : AppCompatActivity() {
         )
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
+
+        setupAdapter()
     }
 
     override fun onResume() {
@@ -106,6 +114,11 @@ class MainActivity : AppCompatActivity() {
         } else {
             super.onBackPressed()
         }
+    }
+
+    fun setupAdapter() {
+        channelAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, MessageService.channels)
+        channel_list.adapter = channelAdapter
     }
 
     fun loginBtnOnClicked(view: View) = when {
