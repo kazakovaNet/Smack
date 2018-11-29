@@ -15,18 +15,36 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import io.socket.client.IO
+import io.socket.emitter.Emitter
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 import ru.kazakova_net.smack.R
+import ru.kazakova_net.smack.model.Channel
 import ru.kazakova_net.smack.services.AuthService
+import ru.kazakova_net.smack.services.MessageService
 import ru.kazakova_net.smack.services.UserDataService
 import ru.kazakova_net.smack.utilities.BROADCAST_USER_DATA_CHANGED
 import ru.kazakova_net.smack.utilities.SOCKET_URL
 
 class MainActivity : AppCompatActivity() {
 
-    val socket = IO.socket(SOCKET_URL)
+    private val socket = IO.socket(SOCKET_URL)
+
+    private val onNewChannel = Emitter.Listener { args ->
+        runOnUiThread {
+            val channelName = args[0] as String
+            val channelDesc = args[1] as String
+            val channelId = args[2] as String
+
+            val newChannel = Channel(channelName, channelDesc, channelId)
+            MessageService.channels.add(newChannel)
+
+            println(newChannel.name)
+            println(newChannel.description)
+            println(newChannel.id)
+        }
+    }
 
     private val userDataChangeReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -51,6 +69,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
+        socket.connect()
+
+        socket.on("channelCreated", onNewChannel)
+
         val toggle = ActionBarDrawerToggle(
             this, drawer_layout, toolbar,
             R.string.navigation_drawer_open,
@@ -61,15 +83,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onResume() {
-        super.onResume()
-
         LocalBroadcastManager.getInstance(this).registerReceiver(
             userDataChangeReceiver, IntentFilter(
                 BROADCAST_USER_DATA_CHANGED
             )
         )
 
-        socket.connect()
+        super.onResume()
     }
 
     override fun onDestroy() {
