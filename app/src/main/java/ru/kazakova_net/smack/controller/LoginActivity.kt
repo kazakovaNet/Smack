@@ -22,8 +22,10 @@ class LoginActivity : AppCompatActivity() {
     fun loginLoginBtnClicked(view: View) {
         enableSpinner(true)
 
-        val email = loginEmailTxt.text.toString()
-        val password = loginPasswordTxt.text.toString()
+//        val email = loginEmailTxt.text.toString()
+//        val password = loginPasswordTxt.text.toString()
+        val email = "1@1.ru"
+        val password = "123456"
 
         hideKeyboard()
 
