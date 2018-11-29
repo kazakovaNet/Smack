@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:orientation="vertical">
+
+    <TextView
+            android:text="Add Channel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:id="@+id/textView3" android:textAlignment="center"
+            android:textSize="18sp" android:layout_marginBottom="16dp" android:layout_marginTop="26dp"/>
+    <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName"
+            android:ems="10"
+            android:id="@+id/addChannelNameTxt" android:hint="channel name"
+            android:textColor="@android:color/darker_gray" android:layout_marginBottom="18dp"
+            android:layout_marginRight="18dp" android:layout_marginLeft="18dp"/>
+    <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName"
+            android:ems="10"
+            android:id="@+id/addChannelDescTxt" android:hint="channel description"
+            android:textColor="@android:color/darker_gray" android:layout_marginLeft="18dp"
+            android:layout_marginRight="18dp" android:layout_marginBottom="18dp"/>
+</LinearLayout>
