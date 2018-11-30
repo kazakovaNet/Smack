@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity() {
 
     private val userDataChangeReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent?) {
-            if (!AuthService.isLoggedIn) {
+            if (!App.prefs.isLoggedIn) {
                 return
             }
 
@@ -88,6 +88,10 @@ class MainActivity : AppCompatActivity() {
         toggle.syncState()
 
         setupAdapter()
+
+        if (App.prefs.isLoggedIn){
+            AuthService.findUserByEmail(this){}
+        }
     }
 
     override fun onResume() {
@@ -122,7 +126,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun loginBtnOnClicked(view: View) = when {
-        AuthService.isLoggedIn -> {
+        App.prefs.isLoggedIn -> {
             // log out
             UserDataService.logout()
 
@@ -139,7 +143,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun onChannelBtnClicked(view: View) {
-        if (!AuthService.isLoggedIn) {
+        if (!App.prefs.isLoggedIn) {
             return
         }
 

@@ -11,16 +11,13 @@ import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import org.json.JSONException
 import org.json.JSONObject
+import ru.kazakova_net.smack.controller.App
 import ru.kazakova_net.smack.utilities.*
 
 /**
  * Created by Kazakova_net on 26.11.2018.
  */
 object AuthService {
-
-    var isLoggedIn = false
-    var userEmail = ""
-    var authToken = ""
 
     fun registerUser(context: Context, email: String, password: String, complete: (Boolean) -> Unit) {
 
@@ -45,7 +42,7 @@ object AuthService {
             }
         }
 
-        Volley.newRequestQueue(context).add(registerRequest)
+        App.prefs.requestQueue.add(registerRequest)
     }
 
     fun loginUser(context: Context, email: String, password: String, complete: (Boolean) -> Unit) {
@@ -58,9 +55,9 @@ object AuthService {
         val loginRequest = object : JsonObjectRequest(Method.POST, URL_LOGIN, null, Response.Listener { response ->
 
             try {
-                userEmail = response.getString("user")
-                authToken = response.getString("token")
-                isLoggedIn = true
+                App.prefs.userEmail = response.getString("user")
+                App.prefs.authToken = response.getString("token")
+                App.prefs.isLoggedIn = true
                 complete(true)
             } catch (e: JSONException) {
                 Log.d("JSON", "EXC: ${e.localizedMessage}")
@@ -80,16 +77,16 @@ object AuthService {
             }
         }
 
-        Volley.newRequestQueue(context).add(loginRequest)
+        App.prefs.requestQueue.add(loginRequest)
     }
 
     fun createUser(
-        context: Context,
-        name: String,
-        email: String,
-        avatarName: String,
-        avatarColor: String,
-        complete: (Boolean) -> Unit
+            context: Context,
+            name: String,
+            email: String,
+            avatarName: String,
+            avatarColor: String,
+            complete: (Boolean) -> Unit
     ) {
 
         val jsonBody = JSONObject()
@@ -100,80 +97,80 @@ object AuthService {
         val requestBody = jsonBody.toString()
 
         val createRequest =
-            object : JsonObjectRequest(Method.POST, URL_CREATE_USER, null, Response.Listener { response ->
+                object : JsonObjectRequest(Method.POST, URL_CREATE_USER, null, Response.Listener { response ->
 
-                try {
+                    try {
 
-                    UserDataService.name = response.getString("name")
-                    UserDataService.email = response.getString("email")
-                    UserDataService.avatarName = response.getString("avatarName")
-                    UserDataService.avatarColor = response.getString("avatarColor")
-                    UserDataService.id = response.getString("_id")
-                    complete(true)
+                        UserDataService.name = response.getString("name")
+                        UserDataService.email = response.getString("email")
+                        UserDataService.avatarName = response.getString("avatarName")
+                        UserDataService.avatarColor = response.getString("avatarColor")
+                        UserDataService.id = response.getString("_id")
+                        complete(true)
 
-                } catch (e: JSONException) {
-                    Log.d("JSON", "EXC: ${e.localizedMessage}")
+                    } catch (e: JSONException) {
+                        Log.d("JSON", "EXC: ${e.localizedMessage}")
+                        complete(false)
+                    }
+
+                }, Response.ErrorListener { error ->
+                    Log.e("ERROR", "Could not add user: $error")
                     complete(false)
+                }) {
+                    override fun getBodyContentType(): String {
+                        return "application/json; charset=utf-8"
+                    }
+
+                    override fun getBody(): ByteArray {
+                        return requestBody.toByteArray()
+                    }
+
+                    override fun getHeaders(): MutableMap<String, String> {
+                        val headers = HashMap<String, String>()
+                        headers["Authorization"] = "Bearer ${App.prefs.authToken}"
+
+                        return headers
+                    }
                 }
 
-            }, Response.ErrorListener { error ->
-                Log.e("ERROR", "Could not add user: $error")
-                complete(false)
-            }) {
-                override fun getBodyContentType(): String {
-                    return "application/json; charset=utf-8"
-                }
-
-                override fun getBody(): ByteArray {
-                    return requestBody.toByteArray()
-                }
-
-                override fun getHeaders(): MutableMap<String, String> {
-                    val headers = HashMap<String, String>()
-                    headers["Authorization"] = "Bearer $authToken"
-
-                    return headers
-                }
-            }
-
-        Volley.newRequestQueue(context).add(createRequest)
+        App.prefs.requestQueue.add(createRequest)
     }
 
     fun findUserByEmail(context: Context, complete: (Boolean) -> Unit) {
         val findUserRequest = object :
-            JsonObjectRequest(Request.Method.GET, "$URL_GET_USER$userEmail", null, Response.Listener { response ->
-                try {
+                JsonObjectRequest(Request.Method.GET, "$URL_GET_USER${App.prefs.userEmail}", null, Response.Listener { response ->
+                    try {
 
-                    UserDataService.name = response.getString("name")
-                    UserDataService.email = response.getString("email")
-                    UserDataService.avatarName = response.getString("avatarName")
-                    UserDataService.avatarColor = response.getString("avatarColor")
-                    UserDataService.id = response.getString("_id")
+                        UserDataService.name = response.getString("name")
+                        UserDataService.email = response.getString("email")
+                        UserDataService.avatarName = response.getString("avatarName")
+                        UserDataService.avatarColor = response.getString("avatarColor")
+                        UserDataService.id = response.getString("_id")
 
-                    val userDataChange = Intent(BROADCAST_USER_DATA_CHANGED)
-                    LocalBroadcastManager.getInstance(context).sendBroadcast(userDataChange)
+                        val userDataChange = Intent(BROADCAST_USER_DATA_CHANGED)
+                        LocalBroadcastManager.getInstance(context).sendBroadcast(userDataChange)
 
-                    complete(true)
-                } catch (e: JSONException) {
-                    Log.d("JSON", "EXC: ${e.localizedMessage}")
+                        complete(true)
+                    } catch (e: JSONException) {
+                        Log.d("JSON", "EXC: ${e.localizedMessage}")
+                        complete(false)
+                    }
+                }, Response.ErrorListener { error ->
+                    Log.e("ERROR", "Could not find user: $error")
                     complete(false)
-                }
-            }, Response.ErrorListener { error ->
-                Log.e("ERROR", "Could not find user: $error")
-                complete(false)
-            }) {
+                }) {
             override fun getBodyContentType(): String {
                 return "application/json; charset=utf-8"
             }
 
             override fun getHeaders(): MutableMap<String, String> {
                 val headers = HashMap<String, String>()
-                headers["Authorization"] = "Bearer $authToken"
+                headers["Authorization"] = "Bearer ${App.prefs.authToken}"
 
                 return headers
             }
         }
 
-        Volley.newRequestQueue(context).add(findUserRequest)
+        App.prefs.requestQueue.add(findUserRequest)
     }
 }
