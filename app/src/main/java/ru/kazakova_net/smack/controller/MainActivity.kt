@@ -19,6 +19,7 @@ import io.socket.client.IO
 import io.socket.emitter.Emitter
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
+import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 import ru.kazakova_net.smack.R
 import ru.kazakova_net.smack.model.Channel
@@ -32,6 +33,7 @@ class MainActivity : AppCompatActivity() {
 
     private val socket = IO.socket(SOCKET_URL)
     lateinit var channelAdapter: ArrayAdapter<Channel>
+    var selectedChannel: Channel? = null
 
     private val onNewChannel = Emitter.Listener { args ->
         runOnUiThread {
@@ -55,16 +57,20 @@ class MainActivity : AppCompatActivity() {
             userNameNavHeader.text = UserDataService.name
             userEmailNavHeader.text = UserDataService.email
             val resourceId = resources.getIdentifier(
-                UserDataService.avatarName, "drawable",
-                packageName
+                    UserDataService.avatarName, "drawable",
+                    packageName
             )
             userImageNavHeader.setImageResource(resourceId)
             userImageNavHeader.setBackgroundColor(UserDataService.returnAvatarColor(UserDataService.avatarColor))
             loginBtnNavHeader.text = "Logout"
 
-            MessageService.getChannels(context){ getChannelsSuccess->
-                if (getChannelsSuccess){
-                    channelAdapter.notifyDataSetChanged()
+            MessageService.getChannels { getChannelsSuccess ->
+                if (getChannelsSuccess) {
+                    if (MessageService.channels.count() > 0) {
+                        selectedChannel = MessageService.channels[0]
+                        channelAdapter.notifyDataSetChanged()
+                        updateWithChannel()
+                    }
                 }
             }
         }
@@ -80,25 +86,31 @@ class MainActivity : AppCompatActivity() {
         socket.on("channelCreated", onNewChannel)
 
         val toggle = ActionBarDrawerToggle(
-            this, drawer_layout, toolbar,
-            R.string.navigation_drawer_open,
-            R.string.navigation_drawer_close
+                this, drawer_layout, toolbar,
+                R.string.navigation_drawer_open,
+                R.string.navigation_drawer_close
         )
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
 
         setupAdapter()
 
-        if (App.prefs.isLoggedIn){
-            AuthService.findUserByEmail(this){}
+        channel_list.setOnItemClickListener { _, _, i, l ->
+            selectedChannel = MessageService.channels[i]
+            drawer_layout.closeDrawer(GravityCompat.START)
+            updateWithChannel()
+        }
+
+        if (App.prefs.isLoggedIn) {
+            AuthService.findUserByEmail(this) {}
         }
     }
 
     override fun onResume() {
         LocalBroadcastManager.getInstance(this).registerReceiver(
-            userDataChangeReceiver, IntentFilter(
+                userDataChangeReceiver, IntentFilter(
                 BROADCAST_USER_DATA_CHANGED
-            )
+        )
         )
 
         super.onResume()
@@ -120,7 +132,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun setupAdapter() {
+    fun updateWithChannel() {
+        mainChannelName.text = "#${selectedChannel?.name}"
+    }
+
+    private fun setupAdapter() {
         channelAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, MessageService.channels)
         channel_list.adapter = channelAdapter
     }
@@ -151,17 +167,17 @@ class MainActivity : AppCompatActivity() {
         val dialogView = layoutInflater.inflate(R.layout.add_channel_dialog, null)
 
         builder.setView(dialogView)
-            .setPositiveButton("Add") { dialogInterface, i ->
-                val nameTextField = dialogView.findViewById<EditText>(R.id.addChannelNameTxt)
-                val descTextField = dialogView.findViewById<EditText>(R.id.addChannelDescTxt)
-                val channelName = nameTextField.text.toString()
-                val channelDesc = descTextField.text.toString()
+                .setPositiveButton("Add") { _, _ ->
+                    val nameTextField = dialogView.findViewById<EditText>(R.id.addChannelNameTxt)
+                    val descTextField = dialogView.findViewById<EditText>(R.id.addChannelDescTxt)
+                    val channelName = nameTextField.text.toString()
+                    val channelDesc = descTextField.text.toString()
 
-                socket.emit("newChannel", channelName, channelDesc)
-            }.setNegativeButton("Cancel") { dialogInterface, i ->
+                    socket.emit("newChannel", channelName, channelDesc)
+                }.setNegativeButton("Cancel") { dialogInterface, i ->
 
-            }
-            .show()
+                }
+                .show()
     }
 
     fun sendMsgBtnClicked(view: View) {
