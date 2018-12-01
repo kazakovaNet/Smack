@@ -2,6 +2,7 @@ package ru.kazakova_net.smack.adapters
 
 import android.content.Context
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +11,9 @@ import android.widget.TextView
 import ru.kazakova_net.smack.R
 import ru.kazakova_net.smack.model.Message
 import ru.kazakova_net.smack.services.UserDataService
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * Created by Kazakova_net on 01.12.2018.
@@ -44,8 +48,23 @@ class MessageAdapter(val context: Context, val messages: ArrayList<Message>) : R
             userImage.setBackgroundColor(UserDataService.returnAvatarColor(message.userAvatarColor))
 
             userName.text = message.userName
-            timeStamp.text = message.timestamp
+            timeStamp.text = returnDateString(message.timestamp)
             msgBody.text = message.message
+        }
+
+        fun returnDateString(isoString: String): String {
+            val isoFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+            isoFormatter.timeZone = TimeZone.getTimeZone("UTC")
+
+            var convertedDate = Date()
+            try {
+                convertedDate = isoFormatter.parse(isoString)
+            } catch (e: ParseException) {
+                Log.d("PARSE", "Cannot parse date")
+            }
+
+            val outDateString = SimpleDateFormat("E, h:mm a", Locale.getDefault())
+            return outDateString.format(convertedDate)
         }
     }
 }
