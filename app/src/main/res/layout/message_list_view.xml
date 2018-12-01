@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/messageUserImage"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:srcCompat="@drawable/profiledefault" />
+
+    <TextView
+        android:id="@+id/messageUserName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toEndOf="@+id/messageUserImage"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="KazakovaNet" />
+
+    <TextView
+        android:id="@+id/messageTimeStamp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toEndOf="@+id/messageUserName"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Mar 11, 10:30 PM" />
+
+    <TextView
+        android:id="@+id/messageBody"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/messageUserImage"
+        app:layout_constraintTop_toBottomOf="@+id/messageTimeStamp"
+        tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras maximus luctus dolor et pharetra. Nunc egestas facilisis metus, et aliquet nibh gravida in. Curabitur vestibulum dictum dui et congue. Nunc dictum ipsum vehicula aliquet aliquam. Phasellus vel mauris eros. Phasellus non diam nec odio faucibus auctor at eu nisi. Duis lobortis tempor blandit.  Curabitur interdum diam non venenatis mattis. Vestibulum lacinia tortor at odio pretium condimentum. In condimentum lectus lectus, efficitur euismod ante ornare non." />
+</android.support.constraint.ConstraintLayout>

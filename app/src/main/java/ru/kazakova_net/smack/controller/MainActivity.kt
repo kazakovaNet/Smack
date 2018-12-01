@@ -11,6 +11,7 @@ import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
@@ -22,6 +23,7 @@ import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 import ru.kazakova_net.smack.R
+import ru.kazakova_net.smack.adapters.MessageAdapter
 import ru.kazakova_net.smack.model.Channel
 import ru.kazakova_net.smack.model.Message
 import ru.kazakova_net.smack.services.AuthService
@@ -34,6 +36,7 @@ class MainActivity : AppCompatActivity() {
 
     private val socket = IO.socket(SOCKET_URL)
     lateinit var channelAdapter: ArrayAdapter<Channel>
+    lateinit var messageAdapter: MessageAdapter
     var selectedChannel: Channel? = null
 
     private val onNewChannel = Emitter.Listener { args ->
@@ -68,6 +71,8 @@ class MainActivity : AppCompatActivity() {
 
                 val newMessage = Message(msgBody, userName, channelId, userAvatar, userAvatarColor, id, timeStamp)
                 MessageService.messages.add(newMessage)
+                messageAdapter.notifyDataSetChanged()
+                messageListView.smoothScrollToPosition(messageAdapter.itemCount - 1)
             }
         }
     }
@@ -120,7 +125,7 @@ class MainActivity : AppCompatActivity() {
 
         setupAdapter()
 
-        channel_list.setOnItemClickListener { _, _, i, l ->
+        channelList.setOnItemClickListener { _, _, i, l ->
             selectedChannel = MessageService.channels[i]
             drawer_layout.closeDrawer(GravityCompat.START)
             updateWithChannel()
@@ -162,9 +167,11 @@ class MainActivity : AppCompatActivity() {
 
         if (selectedChannel != null) {
             MessageService.getMessages(selectedChannel!!.id) { complete ->
-                if (complete){
-                    for (message in MessageService.messages){
-                        println(message.message)
+                if (complete) {
+                    messageAdapter.notifyDataSetChanged()
+
+                    if (messageAdapter.itemCount > 0) {
+                        messageListView.smoothScrollToPosition(messageAdapter.itemCount - 1)
                     }
                 }
             }
@@ -173,13 +180,21 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupAdapter() {
         channelAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, MessageService.channels)
-        channel_list.adapter = channelAdapter
+        channelList.adapter = channelAdapter
+
+        messageAdapter = MessageAdapter(this, MessageService.messages)
+        messageListView.adapter = messageAdapter
+        val layoutManager = LinearLayoutManager(this)
+        messageListView.layoutManager = layoutManager
     }
 
     fun loginBtnOnClicked(view: View) = when {
         App.prefs.isLoggedIn -> {
             // log out
             UserDataService.logout()
+
+            channelAdapter.notifyDataSetChanged()
+            messageAdapter.notifyDataSetChanged()
 
             userNameNavHeader.text = ""
             userEmailNavHeader.text = ""
