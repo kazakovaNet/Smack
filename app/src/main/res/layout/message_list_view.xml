@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -48,4 +48,4 @@
         app:layout_constraintStart_toEndOf="@+id/messageUserImage"
         app:layout_constraintTop_toBottomOf="@+id/messageTimeStamp"
         tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras maximus luctus dolor et pharetra. Nunc egestas facilisis metus, et aliquet nibh gravida in. Curabitur vestibulum dictum dui et congue. Nunc dictum ipsum vehicula aliquet aliquam. Phasellus vel mauris eros. Phasellus non diam nec odio faucibus auctor at eu nisi. Duis lobortis tempor blandit.  Curabitur interdum diam non venenatis mattis. Vestibulum lacinia tortor at odio pretium condimentum. In condimentum lectus lectus, efficitur euismod ante ornare non." />
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

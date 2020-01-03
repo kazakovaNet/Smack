@@ -6,16 +6,17 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Color
 import android.os.Bundle
-import android.support.v4.content.LocalBroadcastManager
-import android.support.v4.view.GravityCompat
-import android.support.v7.app.ActionBarDrawerToggle
-import android.support.v7.app.AlertDialog
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.LinearLayoutManager
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.core.view.GravityCompat
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.EditText
+import androidx.appcompat.widget.Toolbar
 import io.socket.client.IO
 import io.socket.emitter.Emitter
 import kotlinx.android.synthetic.main.activity_main.*
@@ -108,7 +109,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        setSupportActionBar(toolbar)
+        setSupportActionBar(toolbar as Toolbar?)
 
         socket.connect()
 
@@ -116,7 +117,7 @@ class MainActivity : AppCompatActivity() {
         socket.on("messageCreated", onNewMessage)
 
         val toggle = ActionBarDrawerToggle(
-                this, drawer_layout, toolbar,
+                this, drawer_layout, toolbar as Toolbar?,
                 R.string.navigation_drawer_open,
                 R.string.navigation_drawer_close
         )
@@ -177,7 +178,8 @@ class MainActivity : AppCompatActivity() {
 
         messageAdapter = MessageAdapter(this, MessageService.messages)
         messageListView.adapter = messageAdapter
-        val layoutManager = LinearLayoutManager(this)
+        val layoutManager =
+            LinearLayoutManager(this)
         messageListView.layoutManager = layoutManager
     }
 
@@ -248,7 +250,7 @@ class MainActivity : AppCompatActivity() {
         val inputManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 
         if (inputManager.isAcceptingText) {
-            inputManager.hideSoftInputFromWindow(currentFocus.windowToken, 0)
+            inputManager.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
         }
     }
 }
